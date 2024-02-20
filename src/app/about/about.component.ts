@@ -1,6 +1,7 @@
 import { Component, ElementRef, OnInit, ViewChild } from "@angular/core";
 import { response } from "express";
-import { Observable, fromEvent, interval } from "rxjs";
+import { Observable, fromEvent, interval, noop } from "rxjs";
+import { createHttpObservable } from "../common/util";
 
 @Component({
   selector: "about",
@@ -9,23 +10,20 @@ import { Observable, fromEvent, interval } from "rxjs";
 })
 export class AboutComponent implements OnInit {
   constructor() {}
+  courses:any;
   //@ViewChild("btnSave") btnSave;
   ngOnInit() {
-    const http$ = Observable.create((observer) => {
-      fetch('/api/courses')
-        .then((response) => {
-          return response.json();
-        })
-        .then((body) => {
-          observer.next(body);
-          observer.complete();
-        })
-        .catch((err) => observer.error(err));
-    });
-
-    http$.subscribe(courses => console.log(courses));
+    const http$ = createHttpObservable('/api/courses');
+    //const courses$ 
+    http$.subscribe(
+      courses => {
+        console.log(courses);
+      },
+      noop,
+      () => console.log("completed")
+      );
   }
-
+  
   private simpleRxjsExample() {
     const interval$ = interval(1000);
     interval$.subscribe((val) => console.log("stream 1 => " + val));
